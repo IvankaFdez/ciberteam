@@ -1,1 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz de Ciberseguridad – CiberTeam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* Fondo general morado ciber */
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #4b1e82, #050015 65%);
+      color: #f5f5ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
+    .page-wrapper {
+      width: 100%;
+      max-width: 1000px;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: rgba(10, 10, 30, 0.94);
+      border-radius: 22px;
+      border: 1px solid rgba(190, 140, 255, 0.6);
+      box-shadow: 0 0 30px rgba(160, 90, 255, 0.65);
+      padding: 20px;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 2rem;
+      color: #f8ecff;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #d0c0ff;
+      margin-bottom: 16px;
+    }
+
+    .level-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .level-btn {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: 1px solid rgba(210, 180, 255, 0.8);
+      background: linear-gradient(135deg, #6a3bff, #9c4dff);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(120, 60, 230, 0.7);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.08s;
+    }
+
+    .level-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(180, 110, 255, 0.85);
+    }
+
+    .level-btn.active {
+      background: linear-gradient(135deg, #ff8bff, #ff4bdd);
+      border-color: #ffe6ff;
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: #e1d6ff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(70, 35, 150, 0.8);
+      border: 1px solid rgba(210, 180, 255, 0.8);
+      font-size: 0.8rem;
+    }
+
+    .badge span.icon {
+      font-size: 1.1rem;
+    }
+
+    .question-box {
+      background: radial-gradient(circle at top left, rgba(130, 70, 240, 0.5), rgba(18, 10, 45, 0.95));
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(220, 190, 255, 0.7);
+      margin-bottom: 14px;
+      box-shadow: 0 0 18px rgba(150, 90, 255, 0.7);
+    }
+
+    .question-number {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-bottom: 4px;
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff5ff;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.92rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #311b92, #4527a0);
+      color: #f0e6ff;
+      box-shadow: 0 0 10px rgba(90, 50, 200, 0.7);
+      transition: transform 0.07s, box-shadow 0.07s, filter 0.07s;
+    }
+
+    .answer-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(140, 90, 255, 0.9);
+      filter: brightness(1.03);
+    }
+
+    .answer-btn.correct {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      box-shadow: 0 0 15px rgba(129, 199, 132, 0.9);
+    }
+
+    .answer-btn.wrong {
+      background: linear-gradient(135deg, #b71c1c, #d32f2f);
+      box-shadow: 0 0 15px rgba(244, 143, 177, 0.9);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #d5c7ff;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      border-radius: 999px;
+      padding: 8px 16px;
+      border: 1px solid rgba(210, 180, 255, 0.8);
+      background: transparent;
+      color: #f5ecff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.1s, transform 0.08s, box-shadow 0.08s;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #7e3cff, #c85bff);
+      box-shadow: 0 0 10px rgba(180, 110, 255, 0.9);
+      font-weight: 600;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(220, 150, 255, 1);
+    }
+
+    .ghost-btn:hover {
+      background: rgba(80, 40, 150, 0.6);
+    }
+
+    .result-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(8, 20, 55, 0.95);
+      border: 1px solid rgba(180, 150, 255, 0.7);
+      font-size: 0.9rem;
+      color: #f1e5ff;
+    }
+
+    .result-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .result-tag {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4a148c, #7b1fa2);
+      font-size: 0.8rem;
+    }
+
+    .muted {
+      opacity: 0.8;
+    }
+
+    @media (max-width: 700px) {
+      .card {
+        padding: 16px;
+        border-radius: 18px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card">
+      <h1>Quiz de Ciberseguridad</h1>
+      <div class="subtitle">
+        Pon a prueba tus conocimientos en tres niveles: básico, intermedio y avanzado 💜🛡️
+      </div>
+
+      <div class="level-selector">
+        <button class="level-btn active" data-level="1">Nivel 1 · CiberNovato 😄</button>
+        <button class="level-btn" data-level="2">Nivel 2 · CiberPráctico 🔐</button>
+        <button class="level-btn" data-level="3">Nivel 3 · CiberExperto ⚡</button>
+      </div>
+
+      <div class="status-bar">
+        <div class="badge">
+          <span class="icon">📊</span>
+          <span id="status-level">Nivel 1 · Básico</span>
+        </div>
+        <div class="badge">
+          <span class="icon">❓</span>
+          <span id="status-progress">Pregunta 1 de 10</span>
+        </div>
+        <div class="badge">
+          <span class="icon">✅</span>
+          <span id="status-score">Aciertos: 0</span>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <div id="question-number" class="question-number">Pregunta 1 de 10</div>
+        <div id="question-text" class="question-text">
+          Cargando pregunta...
+        </div>
+
+        <div id="answers" class="answers"></div>
+      </div>
+
+      <div class="controls">
+        <button id="btn-restart" class="ghost-btn">
+          🔁 Volver a jugar este nivel
+        </button>
+        <button id="btn-next" class="primary-btn">
+          Siguiente pregunta ➜
+        </button>
+      </div>
+
+      <div id="result-box" class="result-box" style="display:none;">
+        <div class="result-title" id="result-title"></div>
+        <div id="result-text"></div>
+        <div id="result-tag" class="result-tag"></div>
+      </div>
+    </div>
+
+    <!-- Botón Ko-fi -->
+    <div style="text-align:center; margin-top:26px; padding-bottom:40px;">
+      <a href="https://ko-fi.com/ciberteam" target="_blank">
+        <img src="https://storage.ko-fi.com/cdn/kofi3.png?v=3"
+             alt="Invítame a un café en Ko-fi"
+             style="width:200px; border-radius:10px;">
+      </a>
+      <div style="margin-top:6px; font-size:0.8rem; color:#d0c0ff; opacity:0.9;">
+        ¿Te gustan estos minijuegos? Tu café ayuda a crear nuevos retos de ciberseguridad ☕💜
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Banco de preguntas por nivel
+    const levels = {
+      1: {
+        name: "Nivel 1 · Básico",
+        questions: [
+          {
+            q: "¿Qué es una contraseña segura?",
+            options: [
+              "Tu nombre y fecha de nacimiento",
+              "Una palabra sencilla que recuerdes",
+              "Una combinación de letras, números y símbolos",
+              "123456 porque es fácil de escribir"
+            ],
+            correct: 2
+          },
+          {
+            q: "Te llega un correo diciendo que ganaste un premio y te pide hacer clic en un enlace raro. Lo primero que deberías hacer es…",
+            options: [
+              "Hacer clic rápido antes de que caduque",
+              "Responder con tus datos personales",
+              "Borrarlo o marcarlo como spam",
+              "Reenviarlo a todos tus amigos"
+            ],
+            correct: 2
+          },
+          {
+            q: "¿Qué dato es más sensible?",
+            options: [
+              "Tu comida favorita",
+              "Tu número de DNI",
+              "El nombre de tu mascota",
+              "Tu color favorito"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Para qué sirve un antivirus?",
+            options: [
+              "Para acelerar el Wi-Fi",
+              "Para proteger el dispositivo de malware",
+              "Para que la batería dure más",
+              "Para organizar tus fotos"
+            ],
+            correct: 1
+          },
+          {
+            q: "Estás en una cafetería con Wi-Fi gratuito. ¿Qué es lo más seguro?",
+            options: [
+              "Conectarte y entrar al banco online",
+              "Conectarte y ver vídeos o noticias",
+              "Compartir archivos sensibles por correo",
+              "Desactivar el antivirus para que vaya más rápido"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Cuál de estas es una buena práctica con tus contraseñas?",
+            options: [
+              "Escribirlas en un papel pegado al monitor",
+              "Usar la misma para todo",
+              "Compartirla con un amigo de confianza",
+              "No compartirla y cambiarla de vez en cuando"
+            ],
+            correct: 3
+          },
+          {
+            q: "Si una web empieza por https:// en lugar de http:// significa que…",
+            options: [
+              "La web va a ser más rápida",
+              "La conexión está cifrada",
+              "La web es de pago",
+              "Solo funciona en móvil"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Qué es el phishing?",
+            options: [
+              "Un juego online",
+              "Un ataque para engañarte y robar datos",
+              "Un tipo de antivirus",
+              "Una herramienta de copias de seguridad"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Cuál es una buena forma de proteger tu móvil?",
+            options: [
+              "No poner ningún bloqueo para usarlo más rápido",
+              "Usar PIN, huella o reconocimiento facial",
+              "Compartir el PIN con tus amigos",
+              "Instalar todas las apps que encuentres"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Qué deberías hacer antes de instalar una app?",
+            options: [
+              "Instalarla sin mirar nada",
+              "Leer opiniones y revisar permisos",
+              "Desactivar el antivirus para que no moleste",
+              "Buscar una versión 'pirata'"
+            ],
+            correct: 1
+          }
+        ]
+      },
+      2: {
+        name: "Nivel 2 · Intermedio",
+        questions: [
+          {
+            q: "¿Qué es la autenticación en dos pasos (2FA)?",
+            options: [
+              "Iniciar sesión desde dos dispositivos a la vez",
+              "Usar dos contraseñas iguales",
+              "Añadir un segundo factor como código SMS o app",
+              "Cambiar la contraseña cada dos días"
+            ],
+            correct: 2
+          },
+          {
+            q: "¿Cuál es el principal beneficio de usar un gestor de contraseñas?",
+            options: [
+              "No necesitar ninguna contraseña",
+              "Guardar y generar contraseñas fuertes",
+              "Compartir claves fácilmente con cualquiera",
+              "Hacer que el PC vaya más rápido"
+            ],
+            correct: 1
+          },
+          {
+            q: "Tu sistema operativo te avisa de una actualización importante. ¿Qué deberías hacer?",
+            options: [
+              "Ignorarla, siempre molestan",
+              "Actualizar para corregir fallos de seguridad",
+              "Esperar un año y luego actualizar",
+              "Desinstalar el sistema operativo"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Qué es una VPN?",
+            options: [
+              "Un virus muy peligroso",
+              "Una red privada que cifra tu conexión",
+              "Un programa para descargar más rápido",
+              "Un juego multijugador"
+            ],
+            correct: 1
+          },
+          {
+            q: "Si recibes un correo 'del banco' pidiéndote tu PIN o claves completas, lo más probable es que sea…",
+            options: [
+              "Un mensaje urgente real",
+              "Una actualización de condiciones",
+              "Phishing, un intento de robo",
+              "Un simple boletín de noticias"
+            ],
+            correct: 2
+          },
+          {
+            q: "¿Qué significa hacer una copia de seguridad (backup)?",
+            options: [
+              "Borrar archivos antiguos",
+              "Guardar una copia de tus datos en otro lugar",
+              "Comprimir los archivos en ZIP",
+              "Apagar el ordenador correctamente"
+            ],
+            correct: 1
+          },
+          {
+            q: "En redes sociales, ¿qué es una buena práctica de privacidad?",
+            options: [
+              "Publicar tu ubicación en tiempo real",
+              "Aceptar todas las solicitudes de amistad",
+              "Revisar quién puede ver tus publicaciones",
+              "Publicar fotos de todos tus documentos"
+            ],
+            correct: 2
+          },
+          {
+            q: "¿Qué es el malware?",
+            options: [
+              "Cualquier programa muy pesado",
+              "Software malicioso que daña o roba información",
+              "Programas que consumen mucha batería",
+              "Herramientas para limpiar el ordenador"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Cuál de estas señales puede indicar que un sitio web NO es de confianza?",
+            options: [
+              "Faltas de ortografía y diseño descuidado",
+              "Avisos de seguridad del navegador",
+              "Ofertas demasiado buenas para ser verdad",
+              "Todas las anteriores"
+            ],
+            correct: 3
+          },
+          {
+            q: "Estás en el trabajo y alguien desconocido te pide entrar usando tu tarjeta de acceso. Lo más seguro es…",
+            options: [
+              "Dejarle pasar si tiene prisa",
+              "Decirle que le abra otra persona",
+              "Comprobar su identificación o avisar a seguridad",
+              "Ignorarle y marcharte"
+            ],
+            correct: 2
+          }
+        ]
+      },
+      3: {
+        name: "Nivel 3 · Avanzado",
+        questions: [
+          {
+            q: "¿Qué puerto TCP se usa habitualmente para HTTPS?",
+            options: [
+              "21",
+              "53",
+              "80",
+              "443"
+            ],
+            correct: 3
+          },
+          {
+            q: "Un ransomware suele…",
+            options: [
+              "Robar contraseñas del navegador",
+              "Cifrar tus archivos y pedir un rescate",
+              "Mostrar solo anuncios molestos",
+              "Cambiar tu fondo de pantalla"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Qué es el principio de mínimo privilegio?",
+            options: [
+              "Dar a todos permisos de administrador",
+              "Conceder solo los permisos estrictamente necesarios",
+              "Usar siempre la misma cuenta para todo",
+              "Desactivar todos los permisos siempre"
+            ],
+            correct: 1
+          },
+          {
+            q: "En una red corporativa, ¿para qué se segmenta la red?",
+            options: [
+              "Para consumir más direcciones IP",
+              "Para separar y limitar el impacto de incidentes",
+              "Para que el Wi-Fi sea más rápido",
+              "Para ahorrar en routers"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Qué es OSINT en ciberseguridad?",
+            options: [
+              "Un tipo de malware",
+              "Un estándar de cifrado",
+              "Inteligencia obtenida de fuentes públicas",
+              "Un protocolo de red"
+            ],
+            correct: 2
+          },
+          {
+            q: "Un ataque de fuerza bruta contra una contraseña consiste en…",
+            options: [
+              "Engañar al usuario con un correo falso",
+              "Probar muchas combinaciones posibles hasta acertar",
+              "Instalar un keylogger físico",
+              "Desactivar el firewall del sistema"
+            ],
+            correct: 1
+          },
+          {
+            q: "¿Cuál es una medida eficaz contra ataques de fuerza bruta?",
+            options: [
+              "Permitir intentos infinitos de login",
+              "No registrar los intentos fallidos",
+              "Bloquear la cuenta tras varios intentos fallidos",
+              "Usar usuarios sin contraseña"
+            ],
+            correct: 2
+          },
+          {
+            q: "Un analista SOC detecta tráfico inusual hacia direcciones IP desconocidas. El siguiente paso más razonable sería…",
+            options: [
+              "Ignorarlo si la red sigue funcionando",
+              "Bloquear todo el tráfico de salida",
+              "Investigar los destinos y revisar los equipos afectados",
+              "Reiniciar el router y listo"
+            ],
+            correct: 2
+          },
+          {
+            q: "¿Qué describe mejor la ingeniería social?",
+            options: [
+              "Uso de exploits sobre sistemas desactualizados",
+              "Engañar a personas para que revelen información o hagan acciones",
+              "Ataques DDoS masivos",
+              "Escaneo automático de puertos"
+            ],
+            correct: 1
+          },
+          {
+            q: "En una auditoría, ¿qué sería una buena práctica al manejar evidencias?",
+            options: [
+              "Modificar los logs para que se entiendan mejor",
+              "Almacenar evidencias sin orden ni etiqueta",
+              "Mantener cadena de custodia y registros de acceso",
+              "Compartir las capturas por redes sociales"
+            ],
+            correct: 2
+          }
+        ]
+      }
+    };
+
+    let currentLevel = 1;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const levelButtons = document.querySelectorAll(".level-btn");
+    const statusLevel = document.getElementById("status-level");
+    const statusProgress = document.getElementById("status-progress");
+    const statusScore = document.getElementById("status-score");
+    const questionNumberEl = document.getElementById("question-number");
+    const questionTextEl = document.getElementById("question-text");
+    const answersContainer = document.getElementById("answers");
+    const btnNext = document.getElementById("btn-next");
+    const btnRestart = document.getElementById("btn-restart");
+    const resultBox = document.getElementById("result-box");
+    const resultTitle = document.getElementById("result-title");
+    const resultText = document.getElementById("result-text");
+    const resultTag = document.getElementById("result-tag");
+
+    function loadQuestion() {
+      const level = levels[currentLevel];
+      const question = level.questions[currentQuestionIndex];
+      answered = false;
+
+      statusLevel.textContent = level.name;
+      statusProgress.textContent = `Pregunta ${currentQuestionIndex + 1} de ${level.questions.length}`;
+      statusScore.textContent = `Aciertos: ${score}`;
+
+      questionNumberEl.textContent = `Pregunta ${currentQuestionIndex + 1} de ${level.questions.length}`;
+      questionTextEl.textContent = question.q;
+
+      answersContainer.innerHTML = "";
+      resultBox.style.display = "none";
+
+      question.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(index));
+        answersContainer.appendChild(btn);
+      });
+
+      btnNext.disabled = true;
+      btnNext.style.opacity = 0.7;
+    }
+
+    function handleAnswer(selectedIndex) {
+      if (answered) return;
+      answered = true;
+
+      const level = levels[currentLevel];
+      const question = level.questions[currentQuestionIndex];
+      const buttons = answersContainer.querySelectorAll(".answer-btn");
+
+      buttons.forEach((btn, idx) => {
+        if (idx === question.correct) {
+          btn.classList.add("correct");
+        } else if (idx === selectedIndex) {
+          btn.classList.add("wrong");
+        }
+        btn.disabled = true;
+      });
+
+      if (selectedIndex === question.correct) {
+        score++;
+        statusScore.textContent = `Aciertos: ${score}`;
+      }
+
+      btnNext.disabled = false;
+      btnNext.style.opacity = 1;
+    }
+
+    function showResult() {
+      const level = levels[currentLevel];
+      const total = level.questions.length;
+      const percentage = Math.round((score / total) * 100);
+
+      let title, text, tag;
+      if (percentage <= 40) {
+        title = "Necesitas más práctica 🧪";
+        text = "No pasa nada, la ciberseguridad se aprende practicando. Vuelve a intentarlo y fíjate en las explicaciones.";
+        tag = "Nivel: En entrenamiento";
+      } else if (percentage <= 70) {
+        title = "¡Buen trabajo! 💜";
+        text = "Tienes una base sólida de ciberseguridad. Un poco más de práctica y serás imparable.";
+        tag = "Nivel: CiberPráctico";
+      } else {
+        title = "¡Espectacular! ⚡";
+        text = "Se nota que controlas muy bien los conceptos. Estás listo para retos más avanzados.";
+        tag = "Nivel: CiberHéroe";
+      }
+
+      resultTitle.textContent = `${title} (${score}/${total} aciertos, ${percentage}%)`;
+      resultText.textContent = text;
+      resultTag.textContent = tag;
+      resultBox.style.display = "block";
+    }
+
+    function nextQuestion() {
+      const level = levels[currentLevel];
+      if (currentQuestionIndex < level.questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function restartLevel() {
+      const level = levels[currentLevel];
+      currentQuestionIndex = 0;
+      score = 0;
+      statusScore.textContent = "Aciertos: 0";
+      loadQuestion();
+    }
+
+    levelButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const level = parseInt(btn.dataset.level, 10);
+        if (level === currentLevel) return;
+
+        levelButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        currentLevel = level;
+        currentQuestionIndex = 0;
+        score = 0;
+        loadQuestion();
+      });
+    });
+
+    btnNext.addEventListener("click", () => {
+      nextQuestion();
+    });
+
+    btnRestart.addEventListener("click", () => {
+      restartLevel();
+    });
+
+    // Inicializar
+    loadQuestion();
+  </script>
+</body>
+</html>
