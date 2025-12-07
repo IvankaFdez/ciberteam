@@ -1,1 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Granja CiberPráctica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #5cc4ff;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .game-container {
+      max-width: 1200px;
+      width: 100%;
+      background: linear-gradient(to bottom, #87cefa 0, #b3e9ff 40%, #e0f2fe 100%);
+      border-radius: 22px;
+      padding: 14px 18px 60px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+      border: 2px solid #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Mar animado */
+    .sea {
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      bottom: -30px;
+      height: 140px;
+      background: radial-gradient(circle at top, #38bdf8 0, #0284c7 40%, #0369a1 100%);
+      box-shadow: 0 -4px 0 #facc15;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .sea-wave {
+      position: absolute;
+      left: -20%;
+      right: -20%;
+      top: -10px;
+      height: 30px;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.7) 0,
+        rgba(255, 255, 255, 0.7) 15px,
+        transparent 15px,
+        transparent 30px
+      );
+      opacity: 0.8;
+      animation: waveMove 6s linear infinite;
+    }
+
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(80px); }
+    }
+
+    /* Decoración tipo ciudad/granja y barco */
+    .decor-layer {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .decor {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 6px;
+      box-shadow: 0 8px 14px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      background: radial-gradient(circle at top, #ffffff 0, #fee2e2 40%, #fecaca 100%);
+      font-size: 1.6rem;
+    }
+
+    .decor-house {
+      top: 78px;
+      left: 8px;
+      width: 80px;
+      height: 70px;
+      background: radial-gradient(circle at top, #fed7aa 0, #fb923c 40%, #c2410c 100%);
+    }
+
+    .decor-barn {
+      top: 78px;
+      right: 14px;
+      width: 90px;
+      height: 72px;
+      background: radial-gradient(circle at top, #fee2e2 0, #f97373 45%, #b91c1c 100%);
+    }
+
+    .decor-tree {
+      top: 150px;
+      left: 32px;
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, #bbf7d0 0, #22c55e 40%, #15803d 100%);
+    }
+
+    .decor-tree::after {
+      content: "🌳";
+      font-size: 1.6rem;
+    }
+
+    .decor-boat {
+      position: absolute;
+      bottom: 175px;
+      right: 120px;
+      font-size: 2.4rem;
+      animation: boatFloat 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes boatFloat {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(20px, -4px); }
+    }
+
+    .decor-tractor {
+      top: 220px;
+      right: 40px;
+      width: 60px;
+      height: 40px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #fee2e2 0, #fb7185 50%, #be123c 100%);
+    }
+
+    .decor-tractor::before {
+      content: "🚜";
+      font-size: 1.6rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #facc15, #f97316);
+      padding: 8px 12px;
+      box-shadow: 0 6px 12px rgba(248, 181, 0, 0.6);
+      position: relative;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: #7c2d12;
+    }
+
+    header .subtitle {
+      font-size: 0.9rem;
+      color: #78350f;
+    }
+
+    .brand {
+      font-size: 0.75rem;
+      color: #7c2d12;
+    }
+
+    .top-right {
+      text-align: right;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+      justify-content: flex-end;
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .stat-label {
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .weather-pill span {
+      font-size: 1rem;
+    }
+
+    .energy-bar {
+      margin-top: 3px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      overflow: hidden;
+    }
+
+    .energy-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444);
+      transition: width 0.2s ease;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 10px;
+      margin-top: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Granja */
+    .farm-wrapper {
+      background: radial-gradient(circle at top, #bbf7d0 0, #4ade80 40%, #15803d 100%);
+      border-radius: 18px;
+      padding: 12px;
+      border: 2px solid #22c55e;
+      box-shadow: inset 0 0 0 3px rgba(34, 197, 94, 0.3);
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+    }
+
+    .farm-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .farm-header h2 {
+      font-size: 1rem;
+      color: #14532d;
+    }
+
+    .farm-header small {
+      color: #047857;
+      font-size: 0.75rem;
+    }
+
+    .farm-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin-top: 4px;
+      flex: 1;
+    }
+
+    .plot {
+      aspect-ratio: 1 / 1;
+      border-radius: 10px;
+      border: 2px solid #166534;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.1s, filter 0.1s;
+      background: #f97316;
+    }
+
+    .plot:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.35);
+      border-color: #facc15;
+      filter: brightness(1.03);
+    }
+
+    .plot-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 5px;
+      transition: background 0.15s ease;
+    }
+
+    .plot-empty {
+      background: linear-gradient(to bottom, #eab308, #b45309); /* tierra */
+    }
+
+    .plot-planted {
+      background: linear-gradient(to bottom, #16a34a, #166534);
+    }
+
+    .plot-grown {
+      background: linear-gradient(to bottom, #fbbf24, #f97316);
+      animation: readyPulse 1.2s ease-in-out infinite alternate;
+    }
+
+    .plot-withered {
+      background: linear-gradient(to bottom, #9ca3af, #4b5563);
+      filter: grayscale(0.7);
+    }
+
+    @keyframes readyPulse {
+      0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); }
+      100% { box-shadow: 0 0 0 6px rgba(250, 204, 21, 0); }
+    }
+
+    .crop-emoji {
+      font-size: 1.5rem;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+    }
+
+    .plot-label {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      font-size: 0.6rem;
+      color: #f9fafb;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 2px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .plot-state {
+      position: absolute;
+      bottom: 3px;
+      right: 4px;
+      font-size: 0.6rem;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 2px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #bfdbfe;
+    }
+
+    .drop-icon {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      font-size: 0.9rem;
+    }
+
+    /* Panel lateral */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      border: 2px solid #fbbf24;
+      padding: 8px 10px;
+      box-shadow: 0 8px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 3px;
+      color: #7c2d12;
+    }
+
+    .section-subtitle {
+      font-size: 0.75rem;
+      color: #9a3412;
+      margin-bottom: 4px;
+    }
+
+    .seed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    .seed-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: #fffbeb;
+      border: 1px solid #fed7aa;
+      font-size: 0.8rem;
+    }
+
+    .seed-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .seed-emoji {
+      font-size: 1.1rem;
+    }
+
+    .seed-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .seed-name {
+      font-weight: 700;
+      color: #7c2d12;
+    }
+
+    .seed-details {
+      font-size: 0.7rem;
+      color: #9a3412;
+    }
+
+    .seed-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #fef9c3;
+      border: 1px solid #facc15;
+      color: #854d0e;
+    }
+
+    button.btn {
+      border-radius: 999px;
+      padding: 3px 7px;
+      border: 1px solid #fed7aa;
+      background: #ffedd5;
+      color: #7c2d12;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.08s ease, border-color 0.1s;
+    }
+
+    button.btn:hover {
+      background: #fed7aa;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+      border-color: #f97316;
+    }
+
+    button.btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 80px;
+      border-radius: 999px;
+      padding: 5px 7px;
+      border: 1px solid #fed7aa;
+      background: linear-gradient(to bottom, #fffbeb, #fed7aa);
+      color: #7c2d12;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background 0.12s ease, transform 0.08s ease, box-shadow 0.08s ease, border-color 0.1s;
+    }
+
+    .action-btn span.icon {
+      font-size: 1rem;
+    }
+
+    .action-btn.active {
+      border-color: #f97316;
+      background: linear-gradient(to bottom, #fbbf24, #f97316);
+      color: #7c2d12;
+      box-shadow: 0 8px 12px rgba(249, 115, 22, 0.4);
+    }
+
+    .primary-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    button.primary {
+      flex: 1;
+      border-radius: 999px;
+      padding: 7px 9px;
+      border: none;
+      background: linear-gradient(to right, #22c55e, #16a34a);
+      color: white;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(22, 163, 74, 0.45);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s;
+    }
+
+    button.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(22, 163, 74, 0.55);
+      filter: brightness(1.05);
+    }
+
+    button.secondary {
+      border-radius: 999px;
+      padding: 7px 9px;
+      border: 1px solid #94a3b8;
+      background: #e5e7eb;
+      color: #111827;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    button.secondary:hover {
+      background: #cbd5f5;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #4b5563;
+      margin-top: 5px;
+      line-height: 1.3;
+    }
+
+    .log {
+      font-size: 0.8rem;
+      color: #111827;
+      max-height: 190px;
+      overflow-y: auto;
+      padding-right: 3px;
+      margin-top: 4px;
+    }
+
+    .log-entry {
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+
+    .log-entry span.time {
+      color: #6b7280;
+      font-size: 0.7rem;
+    }
+
+    .log-entry span.text {
+      margin-left: 4px;
+    }
+
+    .log-entry.good span.text {
+      color: #166534;
+    }
+
+    .log-entry.bad span.text {
+      color: #b91c1c;
+    }
+
+    .log-entry.info span.text {
+      color: #1d4ed8;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #1f2937;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Menú inferior tipo app */
+    .bottom-menu {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 8px;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .menu-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: 2px solid #0ea5e9;
+      background: radial-gradient(circle at top, #e0f2fe, #7dd3fc);
+      color: #0369a1;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 8px 12px rgba(14, 165, 233, 0.5);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s;
+    }
+
+    .menu-btn span.icon {
+      font-size: 1.1rem;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .menu-btn.active {
+      border-color: #0284c7;
+      background: radial-gradient(circle at top, #bae6fd, #38bdf8);
+    }
+
+    .menu-btn.small {
+      max-width: 120px;
+      flex: none;
+    }
+
+    .menu-btn-toggle-on {
+      background: radial-gradient(circle at top, #bbf7d0, #22c55e);
+      color: #064e3b;
+      border-color: #15803d;
+    }
+
+    .menu-btn-toggle-off {
+      background: radial-gradient(circle at top, #fee2e2, #f97373);
+      color: #7f1d1d;
+      border-color: #b91c1c;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .top-right {
+        text-align: left;
+      }
+
+      .bottom-menu {
+        flex-wrap: wrap;
+        bottom: 6px;
+      }
+
+      .menu-btn.small {
+        flex: 1;
+        max-width: none;
+      }
+    }
+
+    .kofi-button {
+      position: absolute;
+      bottom: 110px;
+      right: 40px;
+      background: #ff5f5f;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kofi-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+    }
+
+    @media (max-width: 600px) {
+      .kofi-button {
+        bottom: 215px;
+        right: 18px;
+        padding: 10px 18px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <!-- Mar y decoraciones -->
+    <div class="sea">
+      <div class="sea-wave"></div>
+    </div>
+
+    <div class="decor-layer">
+      <div class="decor decor-house">🏠</div>
+      <div class="decor decor-barn">🏚️</div>
+      <div class="decor decor-tree"></div>
+      <div class="decor decor-tractor"></div>
+      <div class="decor decor-boat">🚤</div>
+    </div>
+
+    <header>
+      <div>
+        <h1>Granja CiberPráctica</h1>
+        <div class="subtitle">Planta, riega, cosecha y gestiona tu energía como en un juego móvil.</div>
+        <div class="brand">Proyecto educativo · HTML + CSS + JavaScript · Sin assets con copyright</div>
+      </div>
+      <div class="top-right">
+        <div class="stats-row">
+          <div class="stat-pill">
+            <span class="stat-label">Día</span>
+            <span id="day" class="stat-value">1</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-label">Dinero</span>
+            <span id="money" class="stat-value">💰 150</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-label">Energía</span>
+            <span id="energyText" class="stat-value">30 / 30</span>
+          </div>
+          <div class="stat-pill weather-pill">
+            <span class="stat-label">Clima</span>
+            <span id="weather" class="stat-value">☀️ Soleado</span>
+          </div>
+        </div>
+        <div class="energy-bar">
+          <div class="energy-fill" id="energyFill"></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Granja -->
+      <section class="farm-wrapper">
+        <div class="farm-header">
+          <h2>Campo</h2>
+          <small>1) Elige acción (plantar, regar, cosechar) · 2) Haz clic en una parcela.</small>
+        </div>
+        <div id="farm" class="farm-grid"></div>
+      </section>
+
+      <!-- Panel lateral -->
+      <aside class="side-panel">
+        <div class="card">
+          <h2>Tienda & Inventario</h2>
+          <div class="section-subtitle">Compra semillas, selecciona cultivo y gestiona tu energía.</div>
+          <div class="seed-list" id="seedList"></div>
+
+          <div class="action-buttons">
+            <button class="action-btn" data-action="plant">
+              <span class="icon">🌱</span> Plantar
+            </button>
+            <button class="action-btn" data-action="water">
+              <span class="icon">💧</span> Regar
+            </button>
+            <button class="action-btn" data-action="harvest">
+              <span class="icon">🧺</span> Cosechar
+            </button>
+          </div>
+
+          <div class="primary-row">
+            <button class="primary" id="nextDayBtn">Siguiente día 🌅</button>
+            <button class="secondary" id="resetBtn">Nueva partida 🔄</button>
+          </div>
+
+          <div class="hint">
+            Cada acción consume energía. Si llegas a 0, avanza al siguiente día.<br />
+            El clima afecta al riego: <b>lluvia</b> riega todo, <b>nublado</b> mantiene la humedad, <b>sol</b> seca el campo.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Registro de la granja</h2>
+          <div id="log" class="log"></div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <span>
+        Consejo: empieza con trigo para generar dinero rápido y luego invierte en cultivos más rentables.
+      </span>
+
+      <span>
+        Hecho con HTML + CSS + JavaScript puro. Ideal para practicar desarrollo web.
+      </span>
+    </footer>
+
+    <a href="https://ko-fi.com/ciberteam" target="_blank" class="kofi-button">
+      ☕ Invítame a un café
+    </a>
+
+    <div class="bottom-menu">
+      <button class="menu-btn">
+        <span class="icon">🌾</span> Granja
+      </button>
+      <button class="menu-btn small">
+        <span class="icon">📊</span> Estadísticas
+      </button>
+      <button class="menu-btn small">
+        <span class="icon">⚙️</span> Opciones
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- Estado del juego ---
+    const NUM_PLOTS = 24;
+    const MAX_ENERGY = 30;
+
+    const seeds = [
+      { id: "wheat", name: "Trigo", emoji: "🌾", cost: 10, sell: 25, growDays: 2 },
+      { id: "corn", name: "Maíz", emoji: "🌽", cost: 20, sell: 45, growDays: 3 },
+      { id: "carrot", name: "Zanahoria", emoji: "🥕", cost: 15, sell: 35, growDays: 2 }
+    ];
+
+    let day = 1;
+    let money = 150;
+    let energy = MAX_ENERGY;
+    let currentAction = "plant"; // plant | water | harvest
+    let selectedSeedId = "wheat";
+
+    const weatherOptions = [
+      { label: "☀️ Soleado", id: "sunny" },
+      { label: "⛅ Nublado", id: "cloudy" },
+      { label: "🌧️ Lluvioso", id: "rain" }
+    ];
+    let currentWeather = "sunny";
+
+    const plots = [];
+
+    // --- Referencias DOM ---
+    const farmEl = document.getElementById("farm");
+    const seedListEl = document.getElementById("seedList");
+    const logEl = document.getElementById("log");
+
+    const dayEl = document.getElementById("day");
+    const moneyEl = document.getElementById("money");
+    const energyTextEl = document.getElementById("energyText");
+    const energyFillEl = document.getElementById("energyFill");
+    const weatherEl = document.getElementById("weather");
+
+    const actionButtons = document.querySelectorAll(".action-btn");
+    const nextDayBtn = document.getElementById("nextDayBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    // --- Utilidades ---
+    function addLog(type, text) {
+      const entry = document.createElement("div");
+      entry.className = "log-entry " + type;
+
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "time";
+      timeSpan.textContent = "[Día " + day + "]";
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "text";
+      textSpan.textContent = " " + text;
+
+      entry.appendChild(timeSpan);
+      entry.appendChild(textSpan);
+      logEl.prepend(entry);
+    }
+
+    function updateStatsUI() {
+      dayEl.textContent = day;
+      moneyEl.textContent = "💰 " + money;
+      energyTextEl.textContent = energy + " / " + MAX_ENERGY;
+      const perc = Math.max(0, Math.min(100, (energy / MAX_ENERGY) * 100));
+      energyFillEl.style.width = perc + "%";
+
+      const weatherObj = weatherOptions.find(w => w.id === currentWeather);
+      weatherEl.textContent = weatherObj ? weatherObj.label : "☀️ Soleado";
+    }
+
+    function spendEnergy(amount) {
+      if (energy < amount) {
+        addLog("bad", "No tienes suficiente energía para esa acción.");
+        return false;
+      }
+      energy -= amount;
+      updateStatsUI();
+      return true;
+    }
+
+    function getSeedById(id) {
+      return seeds.find(s => s.id === id);
+    }
+
+    // --- Render semillas ---
+    function renderSeedList() {
+      seedListEl.innerHTML = "";
+      seeds.forEach(seed => {
+        const row = document.createElement("div");
+        row.className = "seed-row";
+
+        const info = document.createElement("div");
+        info.className = "seed-info";
+
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "seed-emoji";
+        emojiSpan.textContent = seed.emoji;
+
+        const meta = document.createElement("div");
+        meta.className = "seed-meta";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "seed-name";
+        nameEl.textContent = seed.name;
+
+        const details = document.createElement("div");
+        details.className = "seed-details";
+        details.textContent = "Coste: " + seed.cost + " · Venta: " + seed.sell;
+
+        meta.appendChild(nameEl);
+        meta.appendChild(details);
+
+        info.appendChild(emojiSpan);
+        info.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "seed-actions";
+
+        const pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = seed.growDays + " días";
+
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.textContent = "Elegir";
+
+        if (selectedSeedId === seed.id) {
+          btn.disabled = true;
+          btn.textContent = "Seleccionado";
+        }
+
+        btn.addEventListener("click", () => {
+          selectedSeedId = seed.id;
+          addLog("info", "Has seleccionado " + seed.name + " como cultivo.");
+          renderSeedList();
+        });
+
+        actions.appendChild(pill);
+        actions.appendChild(btn);
+
+        row.appendChild(info);
+        row.appendChild(actions);
+
+        seedListEl.appendChild(row);
+      });
+    }
+
+    // --- Render granja ---
+    function createInitialPlots() {
+      for (let i = 0; i < NUM_PLOTS; i++) {
+        plots.push({
+          id: i,
+          state: "empty", // empty | planted | grown | withered
+          cropId: null,
+          days: 0,
+          watered: false
+        });
+      }
+    }
+
+    function renderFarm() {
+      farmEl.innerHTML = "";
+      plots.forEach(plot => {
+        const tile = document.createElement("div");
+        tile.className = "plot";
+
+        const inner = document.createElement("div");
+        inner.className = "plot-inner";
+
+        const label = document.createElement("div");
+        label.className = "plot-label";
+        label.textContent = "#" + (plot.id + 1);
+
+        const stateLabel = document.createElement("div");
+        stateLabel.className = "plot-state";
+
+        const dropIcon = document.createElement("div");
+        dropIcon.className = "drop-icon";
+        dropIcon.textContent = plot.watered ? "💧" : "";
+
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "crop-emoji";
+
+        // Estado visual
+        if (plot.state === "empty") {
+          inner.classList.add("plot-empty");
+          emojiSpan.textContent = "";
+          stateLabel.textContent = "Vacío";
+        } else if (plot.state === "planted") {
+          inner.classList.add("plot-planted");
+          const seed = getSeedById(plot.cropId);
+          emojiSpan.textContent = seed ? seed.emoji : "🌱";
+          stateLabel.textContent = "Creciendo (" + plot.days + "/" + getSeedById(plot.cropId).growDays + ")";
+        } else if (plot.state === "grown") {
+          inner.classList.add("plot-grown");
+          const seed = getSeedById(plot.cropId);
+          emojiSpan.textContent = seed ? seed.emoji : "🌾";
+          stateLabel.textContent = "Listo";
+        } else if (plot.state === "withered") {
+          inner.classList.add("plot-withered");
+          emojiSpan.textContent = "🥀";
+          stateLabel.textContent = "Marchito";
+        }
+
+        inner.appendChild(emojiSpan);
+        tile.appendChild(inner);
+        tile.appendChild(label);
+        tile.appendChild(stateLabel);
+        tile.appendChild(dropIcon);
+
+        tile.addEventListener("click", () => onPlotClick(plot.id));
+
+        farmEl.appendChild(tile);
+      });
+    }
+
+    // --- Lógica de acciones ---
+    function setAction(action) {
+      currentAction = action;
+      actionButtons.forEach(btn => {
+        if (btn.getAttribute("data-action") === action) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function onPlotClick(id) {
+      const plot = plots[id];
+
+      if (currentAction === "plant") {
+        handlePlant(plot);
+      } else if (currentAction === "water") {
+        handleWater(plot);
+      } else if (currentAction === "harvest") {
+        handleHarvest(plot);
+      }
+
+      renderFarm();
+    }
+
+    function handlePlant(plot) {
+      if (plot.state !== "empty") {
+        addLog("bad", "Esa parcela no está vacía.");
+        return;
+      }
+
+      const seed = getSeedById(selectedSeedId);
+      if (!seed) return;
+
+      if (money < seed.cost) {
+        addLog("bad", "No tienes dinero suficiente para plantar " + seed.name + ".");
+        return;
+      }
+
+      if (!spendEnergy(2)) return;
+
+      money -= seed.cost;
+      plot.state = "planted";
+      plot.cropId = seed.id;
+      plot.days = 0;
+      plot.watered = false;
+
+      addLog("good", "Has plantado " + seed.name + " en la parcela #" + (plot.id + 1) + ".");
+      updateStatsUI();
+    }
+
+    function handleWater(plot) {
+      if (plot.state !== "planted" && plot.state !== "grown") {
+        addLog("bad", "Solo puedes regar cultivos plantados.");
+        return;
+      }
+
+      if (plot.watered) {
+        addLog("info", "Esa parcela ya está regada.");
+        return;
+      }
+
+      if (!spendEnergy(1)) return;
+
+      plot.watered = true;
+      addLog("good", "Has regado la parcela #" + (plot.id + 1) + ".");
+    }
+
+    function handleHarvest(plot) {
+      if (plot.state !== "grown") {
+        addLog("bad", "Ese cultivo aún no está listo o se ha marchitado.");
+        return;
+      }
+
+      const seed = getSeedById(plot.cropId);
+      if (!seed) return;
+
+      if (!spendEnergy(1)) return;
+
+      money += seed.sell;
+      addLog("good", "Has cosechado " + seed.name + " en la parcela #" + (plot.id + 1) + " y ganado " + seed.sell + " monedas.");
+
+      // Vaciar parcela
+      plot.state = "empty";
+      plot.cropId = null;
+      plot.days = 0;
+      plot.watered = false;
+
+      updateStatsUI();
+    }
+
+    // --- Avanzar día ---
+    function randomWeather() {
+      const index = Math.floor(Math.random() * weatherOptions.length);
+      currentWeather = weatherOptions[index].id;
+    }
+
+    function advanceDay() {
+      day += 1;
+      energy = MAX_ENERGY;
+      randomWeather();
+
+      // Efectos del clima
+      if (currentWeather === "rain") {
+        // Lluvia: riega todo
+        plots.forEach(p => {
+          if (p.state === "planted" || p.state === "grown") {
+            p.watered = true;
+          }
+        });
+        addLog("info", "Ha llovido toda la noche. Todas las parcelas están regadas.");
+      } else if (currentWeather === "sunny") {
+        // Sol: seca el campo
+        plots.forEach(p => {
+          p.watered = false;
+        });
+        addLog("info", "Día soleado. El campo se ha secado.");
+      } else {
+        addLog("info", "Día nublado. La humedad del suelo se mantiene.");
+      }
+
+      // Crecimiento / marchitar
+      plots.forEach(plot => {
+        if (plot.state === "planted") {
+          plot.days += 1;
+          const seed = getSeedById(plot.cropId);
+          if (!seed) return;
+
+          if (!plot.watered && currentWeather === "sunny") {
+            // Posible marchitar si hace sol y no está regada
+            if (Math.random() < 0.3) {
+              plot.state = "withered";
+              addLog("bad", "Un cultivo se ha marchitado en la parcela #" + (plot.id + 1) + ".");
+            }
+          } else if (plot.days >= seed.growDays) {
+            plot.state = "grown";
+            addLog("good", "Un cultivo está listo para cosechar en la parcela #" + (plot.id + 1) + ".");
+          }
+        } else if (plot.state === "grown") {
+          // Si lo dejas sin cosechar, podría marchitar
+          if (Math.random() < 0.1) {
+            plot.state = "withered";
+            addLog("bad", "Un cultivo listo se ha echado a perder en la parcela #" + (plot.id + 1) + ".");
+          }
+        }
+      });
+
+      updateStatsUI();
+      renderFarm();
+    }
+
+    function resetGame() {
+      day = 1;
+      money = 150;
+      energy = MAX_ENERGY;
+      currentWeather = "sunny";
+      selectedSeedId = "wheat";
+      currentAction = "plant";
+
+      plots.forEach(p => {
+        p.state = "empty";
+        p.cropId = null;
+        p.days = 0;
+        p.watered = false;
+      });
+
+      logEl.innerHTML = "";
+      addLog("info", "Has comenzado una nueva partida de la granja.");
+      renderSeedList();
+      setAction("plant");
+      updateStatsUI();
+      renderFarm();
+    }
+
+    // --- Inicialización ---
+    document.addEventListener("DOMContentLoaded", () => {
+      createInitialPlots();
+      renderSeedList();
+      setAction("plant");
+      updateStatsUI();
+      renderFarm();
+
+      actionButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const act = btn.getAttribute("data-action");
+          setAction(act);
+        });
+      });
+
+      nextDayBtn.addEventListener("click", () => {
+        advanceDay();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        resetGame();
+      });
+
+      addLog("info", "Bienvenida a la Granja CiberPráctica. Empieza plantando trigo y prueba diferentes cultivos.");
+    });
+  </script>
+</body>
+</html>
 
